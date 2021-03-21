@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import io
+from scipy.io.wavfile import read
 import csv
 
 # Download the model to yamnet.tflite
@@ -14,7 +15,11 @@ embeddings_output_index = output_details[1]['index']
 spectrogram_output_index = output_details[2]['index']
 
 # Input: 3 seconds of silence as mono 16 kHz waveform samples.
-waveform = np.zeros(3 * 16000, dtype=np.float32)
+# waveform = np.zeros(3 * 16000, dtype=np.float32)
+
+audio = read("./sounds/144.wav")
+# print(np.array(audio[1], dtype=float))
+waveform = np.array(audio[1], dtype=np.float32)
 
 interpreter.resize_tensor_input(waveform_input_index, [len(waveform)])
 interpreter.allocate_tensors()
@@ -40,5 +45,4 @@ def class_names_from_csv(class_map_csv):
 # Download the YAMNet class map (see main YAMNet model docs) to yamnet_classes.csv
 # See YAMNet TF2 usage sample for class_names_from_csv() definition.
 class_names = class_names_from_csv('yamnet_classes.csv')
-print(class_names)
 print(class_names[scores.mean(axis=0).argmax()])  # Should print 'Silence'.
